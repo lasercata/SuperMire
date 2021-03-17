@@ -4,11 +4,19 @@
 
 
 author = 'Lasercata'
-last_update = '19.09.2020'
-version = '5.0'
+last_update = '17.03.2021'
+version = '5.0.1'
 
 
 update_notes = """
+SuperMire_v5.0.1 ~~~ 15.09.2020
+-------------------------------
+Improvements (from v5.0) :
+    - Changing the CSV separator from comma (,) to semicolon (;)
+
+**************
+
+
 SuperMire_v5.0 ~~~ 15.09.2020
 -----------------------------
 Improvements (from v4.0) :
@@ -180,7 +188,7 @@ def trans(d):
 class SuperMire:
     '''Class which define SuperMire's calculation functions'''
 
-    def __init__(self, nb_mires, lvl0_1, prec=3):
+    def __init__(self, nb_mires, lvl0_1, prec=3, sep=';'):
         '''
         Initiate SuperMire.
 
@@ -192,8 +200,9 @@ class SuperMire:
         self.nb_mires = nb_mires
         self.lvl0_1 = lvl0_1
         self.prec = prec
+        self.sep = sep
 
-        fdn = [',,Côtes de la mire {0} :,Côtes calculées de la mire {0} :'.format(k) for k in range(1, nb_mires + 1)]
+        fdn = ['{0}{0}Côtes de la mire {1} :{0}Côtes calculées de la mire {1} :'.format(sep, k) for k in range(1, nb_mires + 1)]
         self.fdn = ''.join(fdn)
 
 
@@ -279,10 +288,10 @@ class SuperMire:
 
         lth_mx = len(max([c_cotes_t[m] for m in c_cotes_t]))
 
-        ret = 'Mire,+/- 0.00'
+        ret = 'Mire{}+/- 0.00'.format(self.sep)
 
         for k in range(1, self.nb_mires + 1):
-            ret += '\n{},{}'.format(k, self.lvl0[k])
+            ret += '\n{}{}{}'.format(k, self.sep, self.lvl0[k])
 
         ret += '\n' * 3
 
@@ -293,10 +302,10 @@ class SuperMire:
 
             for mire in range(1, self.nb_mires + 1):
                 try:
-                    ret += ',,{},{}'.format(*c_cotes_t[mire][k])
+                    ret += '{0}{0}{1}{0}{2}'.format(self.sep, *c_cotes_t[mire][k]) # ';;{};{}'.format(*c_cotes_t[mire][k])
 
                 except IndexError:
-                    ret += ',,,'
+                    ret += self.sep * 3
 
 
         return ret
@@ -518,7 +527,7 @@ class QHLine(QFrame):
 class CheckTable(QMainWindow):
     '''Define the confirmation table popup.'''
 
-    def __init__(self, csv_str, parent=None):
+    def __init__(self, csv_str, sep=';', parent=None):
         '''Create the window.'''
 
         #------ini
@@ -527,6 +536,7 @@ class CheckTable(QMainWindow):
         self.resize(1000, 500)
 
         self.csv_str = csv_str
+        self.sep = sep
         self.save_path = expanduser('~')
 
         #------Widgets
@@ -569,7 +579,7 @@ class CheckTable(QMainWindow):
         tb = []
 
         for l in lines:
-            tb.append(l.split(','))
+            tb.append(l.split(self.sep))
 
         for row in tb:
             self.model.appendRow([QStandardItem(k) for k in row])
@@ -589,7 +599,7 @@ class CheckTable(QMainWindow):
         for row in range(n_rows):
             for col in range(n_col):
                 data = self.model.data(self.model.index(row, col))
-                ret += '{},'.format((data, '')[data == None])
+                ret += (data, '')[data == None] + self.sep
 
             ret += '\n'
 
@@ -616,10 +626,10 @@ class CheckTable(QMainWindow):
         QMessageBox.about(None, 'Fait !','<h2>Vos côtes ont bien étés enregistées dans le fichier "{}" !</h2>'.format(fn.replace('\\', '/').split('/')[-1]))
 
 
-    def use(csv_str, parent=None):
+    def use(csv_str, sep=';', parent=None):
         '''launch the window'''
 
-        win_chk = CheckTable(csv_str, parent)
+        win_chk = CheckTable(csv_str, sep, parent)
         win_chk.show()
 
 
