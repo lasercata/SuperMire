@@ -9,7 +9,7 @@ version = '5.0.1'
 
 
 update_notes = """
-SuperMire_v5.0.1 ~~~ 15.09.2020
+SuperMire_v5.0.1 ~~~ 17.03.2021
 -------------------------------
 Improvements (from v5.0) :
     - Changing the CSV separator from comma (,) to semicolon (;)
